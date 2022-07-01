@@ -49,9 +49,17 @@ def hello():
     2 - quick run through exist, to modify task list
     """
     conn = get_db_connection()
+    print("INSERT INTO tasks (user_id, day, task1, task2, task3, task4, task5) VALUES (%s, %s, False, False, False, False, False);" % (user_id, current_date))
     return_statement = conn.execute('SELECT * FROM tasks WHERE user_id="%s" AND day="%s"' % (user_id, current_date)).fetchone()
     if return_statement == None:
-        conn.execute("INSERT INTO tasks (user_id, day, task1, task2, task3, task4, task5) VALUES (%s, %s, False, False, False, False, False);" % (user_id, ))
+        attempt = False
+        while not attempt:
+            try: 
+                conn.execute("INSERT INTO tasks (user_id, day, task1, task2, task3, task4, task5) VALUES (%s, '%s', 'FALSE', 'FALSE', 'FALSE', 'FALSE', 'FALSE');" % (user_id, current_date))
+                conn.commit()
+                attempt = True
+            except:
+                attempt = False
         return render_template('hello.html', tasks=task_list)
     else:
         ## if user doesnt exist, insert row, and then return task lit
@@ -80,11 +88,15 @@ def update():
     ##sql query to db to update status 
     conn = get_db_connection()
 
-    # update taskId where user_id = userid and date=date 
+    # update taskId where user_id = userid and date=date
     return_statement = conn.execute('SELECT * FROM tasks WHERE user_id="%s" AND day="%s"' % (user_id, current_date)).fetchone()
     if return_statement == None:
-        return render_template('hello.html', tasks=task_list)
+        return Response(status=400)
     else:
         pass
-
     return Response(status=200)
+
+
+@app.get('/pupdate')
+def pupdate():
+    return Response(status=418)
