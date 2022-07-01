@@ -14,23 +14,23 @@ app = Flask(__name__)
 task_list = [{
         "task": "task1",
         "status": False,
-        "id": "t1"
+        "id": "task1"
     },    {
         "task": "task2",
         "status": False,
-        "id": "t2"
+        "id": "task2"
     },    {
         "task": "task3",
         "status": False,
-        "id": "t3"
+        "id": "task3"
     },    {
         "task": "task4",
         "status": False,
-        "id": "t4"
+        "id": "task4"
     },    {
         "task": "task5",
         "status": False,
-        "id": "t5"
+        "id": "task5"
     },    
 ]
 
@@ -88,8 +88,10 @@ def update():
     ##sql query to db to update status 
     conn = get_db_connection()
 
-    # update taskId where user_id = userid and date=date
-    return_statement = conn.execute('SELECT * FROM tasks WHERE user_id="%s" AND day="%s"' % (user_id, current_date)).fetchone()
+    # print("UPDATE tasks SET %s='%s' WHERE user_id='%s' AND day='%s'" % (body['task_id'], str(body['status']).upper(), user_id, current_date))
+    return_statement = conn.execute("UPDATE tasks SET %s='%s' WHERE user_id='%s' AND day='%s'" % (body['task_id'], str(body['status']).upper(), user_id, current_date))
+    conn.commit()
+    print(return_statement.fetchall())
     if return_statement == None:
         return Response(status=400)
     else:
