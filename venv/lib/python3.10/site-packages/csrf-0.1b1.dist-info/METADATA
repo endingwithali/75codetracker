@@ -1,0 +1,21 @@
+Metadata-Version: 2.0
+Name: csrf
+Version: 0.1b1
+Summary: simply generate & validate BREACH-resistant CSRF tokens
+Home-page: https://github.com/golightlyb/csrf.py
+Author: Tawesoft Ltd
+Author-email: opensource@tawesoft.co.uk
+License: GNU All-Permissive License
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Operating System :: Unix
+
+simply generate & validate BREACH-resistant CSRF tokens
+
+

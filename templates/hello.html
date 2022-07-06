@@ -8,16 +8,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
     <script type="text/javascript">
         function update(currentElement){
-            console.log(currentElement)
-            // currentElement.checked;
             $.ajax({
                 type: "PUT",
                 contentType: 'application/json',
-                data: {
+                data: JSON.stringify({
                     "task_id": currentElement.id,
                     "status": currentElement.checked
-                },
-                url: "/update",
+                }),
+                url: "update",
                 success: function (data) { 
                     $("#result").html("success")
               },
@@ -33,7 +31,7 @@
     <ul>
         <li> eat well </li>
         {% for task in tasks %}
-            <li><input type="checkbox" value={{task.status}} id={{task.id}} onchange="update(this)"/> {{task.task}}</li>
+            <li><input type="checkbox" {{ "checked" if task.status == "TRUE"}} id={{task.id}} onchange="update(this)"/> {{task.task}}</li>
         {% endfor %}
     </ul>
     <div id="result"></div>

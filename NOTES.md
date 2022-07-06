@@ -10,11 +10,12 @@ Tutorials That I followed to help me:
 - https://python-adv-web-apps.readthedocs.io/en/latest/flask_db1.html
 - https://flask.palletsprojects.com/en/2.1.x/quickstart/
 - https://stackoverflow.com/questions/5476065/how-to-truncate-the-time-on-a-datetime-object
-
+- https://mnzel.medium.com/how-to-activate-python-venv-on-a-mac-a8fa1c3cb511
 
 
 ## How init sqlite3 db
 ```
+
 $ python init_db.py
 ```
 
@@ -29,3 +30,13 @@ that should work
 $ export FLASK_APP=hello    
 $ flask run 
 ```
+
+## Run flask with debugger
+```
+$ export FLASK_ENV=development
+$ flask run --debugger
+```
+
+
+## How to start using the VENV 
+https://mnzel.medium.com/how-to-activate-python-venv-on-a-mac-a8fa1c3cb511

@@ -1,3 +1,4 @@
+from os import stat
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -40,7 +41,7 @@ def get_db_connection():
     return conn
 
 
-user_id = 0
+user_id = 1
 
 @app.route('/')
 def hello():
@@ -48,57 +49,52 @@ def hello():
     1 - pull from db - (check if date exists ) - if not, return unfilled
     2 - quick run through exist, to modify task list
     """
-    conn = get_db_connection()
-    print("INSERT INTO tasks (user_id, day, task1, task2, task3, task4, task5) VALUES (%s, %s, False, False, False, False, False);" % (user_id, current_date))
-    return_statement = conn.execute('SELECT * FROM tasks WHERE user_id="%s" AND day="%s"' % (user_id, current_date)).fetchone()
-    if return_statement == None:
-        attempt = False
-        while not attempt:
-            try: 
-                conn.execute("INSERT INTO tasks (user_id, day, task1, task2, task3, task4, task5) VALUES (%s, '%s', 'FALSE', 'FALSE', 'FALSE', 'FALSE', 'FALSE');" % (user_id, current_date))
-                conn.commit()
-                attempt = True
-            except:
-                attempt = False
+    try:
+        conn = get_db_connection()
+        return_statement = conn.execute('SELECT * FROM tasks WHERE user_id="%s" AND day="%s"' % (user_id, current_date)).fetchone()
+        if return_statement == None:
+            attempt = False
+            while not attempt:
+                try: 
+                    conn.execute("INSERT INTO tasks (user_id, day, task1, task2, task3, task4, task5) VALUES (%s, '%s', 'FALSE', 'FALSE', 'FALSE', 'FALSE', 'FALSE');" % (user_id, current_date))
+                    conn.commit()
+                    attempt = True
+                except:
+                    attempt = False
+            return render_template('hello.html', tasks=task_list)
+        else:
+            for i in range(2,len(return_statement)):
+                task_list[i-2]["status"]=return_statement[i]
+            ## if user doesnt exist, insert row, and then return task lit
+            print(task_list)
         return render_template('hello.html', tasks=task_list)
-    else:
-        ## if user doesnt exist, insert row, and then return task lit
-        pass
-
-    return render_template('hello.html', tasks=task_list)
-
+    except Exception as e:
+        print(e)
+        return Response(status=400)
 
 """
 expects:
 body to contain - 
 json object body
 {
-    "task_id": "__text1__",
-    "status": False,
+    "task_id": "task#",
+    "status": boolean,
     "user_id": "beans"
 }
 """
 @app.put('/update')
 def update():
-    """
-    - take current task (value) + day, and change status in DB from false to true 
-    """
-    print(request.get_json())
-    body = request.get_json()
-    ##sql query to db to update status 
-    conn = get_db_connection()
-
-    # print("UPDATE tasks SET %s='%s' WHERE user_id='%s' AND day='%s'" % (body['task_id'], str(body['status']).upper(), user_id, current_date))
-    return_statement = conn.execute("UPDATE tasks SET %s='%s' WHERE user_id='%s' AND day='%s'" % (body['task_id'], str(body['status']).upper(), user_id, current_date))
-    conn.commit()
-    print(return_statement.fetchall())
-    if return_statement == None:
+    try:
+        body = request.json
+        conn = get_db_connection()
+        return_statement = conn.execute("UPDATE tasks SET %s='%s' WHERE user_id='%s' AND day='%s'" % (body['task_id'], str(body['status']).upper(), user_id, current_date))
+        conn.commit()
+        return Response(status=200)
+    except Exception as e:
+        print(e)
         return Response(status=400)
-    else:
-        pass
-    return Response(status=200)
 
 
-@app.get('/pupdate')
-def pupdate():
+@app.get('/teapot')
+def teapot():
     return Response(status=418)
