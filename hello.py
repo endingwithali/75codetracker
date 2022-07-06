@@ -49,6 +49,12 @@ def hello():
     1 - pull from db - (check if date exists ) - if not, return unfilled
     2 - quick run through exist, to modify task list
     """
+    """
+    login mock up:
+        1) check to see if user is logged in 
+        2) if logged in - pull data from db, or create new row using insert
+        3) if not logged in - create new user using FusionAuth! 
+    """
     try:
         conn = get_db_connection()
         return_statement = conn.execute('SELECT * FROM tasks WHERE user_id="%s" AND day="%s"' % (user_id, current_date)).fetchone()
@@ -61,13 +67,11 @@ def hello():
                     attempt = True
                 except:
                     attempt = False
-            return render_template('hello.html', tasks=task_list)
+            return render_template('taskboard.html', tasks=task_list)
         else:
             for i in range(2,len(return_statement)):
                 task_list[i-2]["status"]=return_statement[i]
-            ## if user doesnt exist, insert row, and then return task lit
-            print(task_list)
-        return render_template('hello.html', tasks=task_list)
+        return render_template('taskboard.html', tasks=task_list)
     except Exception as e:
         print(e)
         return Response(status=400)
@@ -84,6 +88,11 @@ json object body
 """
 @app.put('/update')
 def update():
+
+    """
+    first get info about user that is logged in
+    then update 
+    """
     try:
         body = request.json
         conn = get_db_connection()

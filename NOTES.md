@@ -40,3 +40,20 @@ $ flask run --debugger
 
 ## How to start using the VENV 
 https://mnzel.medium.com/how-to-activate-python-venv-on-a-mac-a8fa1c3cb511
+
+
+
+
+## Concepts:
+
+use bootstrap multicolored progressbar to count how many days and tasks are done :
+https://getbootstrap.com/docs/5.0/components/progress/#multiple-bars
+
+-- to be done on the bottom of the screen under the to do list 
+-- a specific color maps to current number of tasks done for that day 
+
+
+- if we have 75 days 
+
+
+- command shift p to open up sqlite reader
