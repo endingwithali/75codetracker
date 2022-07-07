@@ -46,7 +46,6 @@ def get_db_connection():
     return conn
 
 
-user_id = 1
 
 @app.route('/')
 def hello():
@@ -60,23 +59,33 @@ def hello():
         2) if logged in - pull data from db, or create new row using insert
         3) if not logged in - create new user using FusionAuth! 
     """
+    print('in study')
     user=None
     if session.get('user') != None:
         user = session['user']
+        user_id = user['sub']
         try:
+            print("WE ARE TRYING")
             conn = get_db_connection()
             return_statement = conn.execute('SELECT * FROM tasks WHERE user_id="%s" AND day="%s"' % (user_id, current_date)).fetchone()
             if return_statement == None:
+                print(return_statement)
                 attempt = False
                 while not attempt:
                     try: 
-                        conn.execute("INSERT INTO tasks (user_id, day, task1, task2, task3, task4, task5) VALUES (%s, '%s', 'FALSE', 'FALSE', 'FALSE', 'FALSE', 'FALSE');" % (user_id, current_date))
+                        print("we're trying")
+                        cur = conn.cursor()
+                        cur.execute("INSERT INTO tasks (user_id, day, task1, task2, task3, task4, task5) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                                (user_id, current_date, 'FALSE',  'FALSE',  'FALSE',  'FALSE',  'FALSE')
+                                    )
                         conn.commit()
+                        conn.close()
                         attempt = True
                     except:
                         attempt = False
                 return render_template('taskboard.html', tasks=task_list)
             else:
+                print("In else")
                 for i in range(2,len(return_statement)):
                     task_list[i-2]["status"]=return_statement[i]
             return render_template('taskboard.html', tasks=task_list)
@@ -84,7 +93,9 @@ def hello():
             print(e)
             return Response(status=400)
     else:
+        print("beeans")
         return render_template('login.html')
+    print("hello world")
     return Response(status=400)
 """
 expects:
@@ -103,15 +114,21 @@ def update():
     first get info about user that is logged in
     then update 
     """
-    try:
-        body = request.json
-        conn = get_db_connection()
-        return_statement = conn.execute("UPDATE tasks SET %s='%s' WHERE user_id='%s' AND day='%s'" % (body['task_id'], str(body['status']).upper(), user_id, current_date))
-        conn.commit()
-        return Response(status=200)
-    except Exception as e:
-        print(e)
-        return Response(status=400)
+    user=None
+    if session.get('user') != None:
+        user = session['user']
+        user_id = user['sub']
+        try:
+            body = request.json
+            conn = get_db_connection()
+            return_statement = conn.execute("UPDATE tasks SET %s='%s' WHERE user_id='%s' AND day='%s'" % (body['task_id'], str(body['status']).upper(), user_id, current_date))
+            conn.commit()
+            return Response(status=200)
+        except Exception as e:
+            print(e)
+            return Response(status=400)
+    else:
+        return Response(status=500)
 
 
 @app.get('/teapot')
@@ -129,6 +146,8 @@ def logout():
 @app.route("/login", methods=["GET"])
 def login():
     fusionauth = OAuth2Session(app.config['CLIENT_ID'], redirect_uri=app.config['REDIRECT_URI'])
+    print("in login")
+    print(str(fusionauth))
     authorization_url, state = fusionauth.authorization_url(app.config['AUTHORIZATION_BASE_URL'])
     # State is used to prevent CSRF, keep this for later.
     session['oauth_state'] = state
@@ -152,16 +171,19 @@ def register():
 
 @app.route("/callback", methods=["GET"])
 def callback():
-  expected_state = session['oauth_state']
-  state = request.args.get('state','')
-  if state != expected_state:
-    print("Error, state doesn't match, redirecting without getting token.")
+    print("in callback")
+    expected_state = session['oauth_state']
+    state = request.args.get('state','')
+    if state != expected_state:
+        print("Error, state doesn't match, redirecting without getting token.")
+        return redirect('/')
+        
+    fusionauth = OAuth2Session(app.config['CLIENT_ID'], redirect_uri=app.config['REDIRECT_URI'])
+    print(str(fusionauth))
+    print(fusionauth.redirect_uri)
+    token = fusionauth.fetch_token(app.config['TOKEN_URL'], client_secret=app.config['CLIENT_SECRET'], authorization_response=request.url)
+
+    session['oauth_token'] = token
+    session['user'] = fusionauth.get(app.config['USERINFO_URL']).json()
+
     return redirect('/')
-    
-  fusionauth = OAuth2Session(app.config['CLIENT_ID'], redirect_uri=app.config['REDIRECT_URI'])
-  token = fusionauth.fetch_token(app.config['TOKEN_URL'], client_secret=app.config['CLIENT_SECRET'], authorization_response=request.url)
-
-  session['oauth_token'] = token
-  session['user'] = fusionauth.get(app.config['USERINFO_URL']).json()
-
-  return redirect('/')

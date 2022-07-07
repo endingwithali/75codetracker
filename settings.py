@@ -5,4 +5,4 @@ class Config(object):
   AUTHORIZATION_BASE_URL='https://endingwithali.fusionauth.io/oauth2/authorize'
   TOKEN_URL='https://endingwithali.fusionauth.io/oauth2/token'
   USERINFO_URL='https://endingwithali.fusionauth.io/oauth2/userinfo'
-  REDIRECT_URI='http://localhost:5000/callback'
+  REDIRECT_URI='http://127.0.0.1:5000/callback'
