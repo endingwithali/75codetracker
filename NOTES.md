@@ -31,6 +31,13 @@ $ export FLASK_APP=hello
 $ flask run 
 ```
 
+## How to run flask app server with insecure https
+```
+$ export FLASK_APP = HELLO
+$ export FLASK_ENV=development
+$ OAUTHLIB_INSECURE_TRANSPORT=1 flask run --debugger
+```
+
 ## Run flask with debugger
 ```
 $ export FLASK_ENV=development
